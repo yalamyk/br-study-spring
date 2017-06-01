@@ -9,7 +9,10 @@ import javax.sql.DataSource; //DriverManagerDataSource�� BasicDataSource��
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 //import javax.swing.tree.RowMapper;
 import org.springframework.jdbc.core.RowMapper;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import kr.or.connect.domain.Book;
@@ -17,11 +20,21 @@ import kr.or.connect.domain.Book;
 @Repository
 public class BookDao {
 	private NamedParameterJdbcTemplate jdbc;
+	public SimpleJdbcInsert insertAction;
 	
 	//DriverManagerDataSource
 	public BookDao(DataSource dataSource){
 		this.jdbc = new NamedParameterJdbcTemplate(dataSource);
+		this.insertAction = new SimpleJdbcInsert(dataSource)
+				.withTableName("book")
+				.usingGeneratedKeyColumns("id");
 	}
+	
+	public Integer insert(Book book){
+		SqlParameterSource params = new BeanPropertySqlParameterSource(book);
+		return insertAction.executeAndReturnKey(params).intValue();
+	}
+	
 	
 	//BookLauncher
 	private static final String COUNT_BOOK = "SELECT COUNT(*) FROM book";
@@ -56,6 +69,8 @@ public class BookDao {
 		params.put("id", id);
 		return jdbc.queryForObject(SELECT_BY_ID, params, rowMapper);
 	}
+	
+	
 	//위의 람다 표현식은 익명클래스로 표현한다면 아래와 같다.
 //	RowMapper<Book> rowMapper = new RowMapper<Book>() {
 //		@Override
@@ -68,3 +83,4 @@ public class BookDao {
 //		}
 //	};
 }
+

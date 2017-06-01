@@ -35,6 +35,10 @@ public class Book {
 	public String toString() {
 		return "Book [id=" + id + ", author=" + author + ", title=" + title + ", pages=" + pages + "]";
 	}
-	
-	
+	public Book(){}
+	public Book(String title, String author, Integer pages){
+		this.title=title;
+		this.author=author;
+		this.pages=pages;
+	}
 }
